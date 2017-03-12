@@ -102,8 +102,11 @@ def main(url=url, usedlist=usedlist, cmd=cmd):
         try:
             f_file = open(str(usedlist), 'r')
             URLs_List = f_file.read().replace('\r', '').split('\n')
-            URLs_List.remove('')
-            f_file.close()
+            try:
+                URLs_List.remove('')
+            except ValueError:
+                pass
+                f_file.close()
         except:
             print('Error: There was an error in reading list file.')
             exit(1)
