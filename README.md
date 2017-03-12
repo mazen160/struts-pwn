@@ -12,10 +12,10 @@
 ##Testing a list of URLs.##
 `python struts-pwn.py --list 'urls.txt' -c 'id'`
 
-##Check if the vulnerability exists against a single URL.##
+##Checking if the vulnerability exists against a single URL.##
 `python struts-pwn.py --check --url 'http://example.com/struts2-showcase/index.action'`
 
-##Check if the vulnerability exists against a list of URLs.##
+##Checking if the vulnerability exists against a list of URLs.##
 `python struts-pwn.py --check --list 'urls.txt'`
 
 
