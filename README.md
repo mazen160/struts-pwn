@@ -48,3 +48,4 @@ The project is licensed under MIT License.
 #**Mod author**#
 *Cristian Giustini*
 * Website: [http://www.voidzone.it](http://www.voidzone.it)
+* Email: *void AT voidzone DOT it*
