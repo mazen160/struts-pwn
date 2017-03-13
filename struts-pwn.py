@@ -62,7 +62,7 @@ usedlist = args.usedlist if args.usedlist else None
 rangelist = args.rangelist if args.rangelist else None
 url = args.url if args.url else None
 cmd = args.cmd if args.cmd else None
-port = args.port if args.port else 80
+port = int(args.port) if args.port else 80
 do_check = args.do_check if args.do_check else None
 
 
