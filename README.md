@@ -18,6 +18,12 @@
 ##Checking if the vulnerability exists against a list of URLs.##
 `python struts-pwn.py --check --list 'urls.txt'`
 
+##Checking if the vulnerability exists against a CIDR range.##
+`python struts-pwn.py --check --range "127.0.0.1/24"
+
+##Checking if the vulnerability exists for a specific port (option is available for all above options).##
+`python struts-pwn.py --check --port 8081
+
 
 #**Requirements**#
 * Python2 or Python3
@@ -32,9 +38,14 @@ This project is made for educational and ethical testing purposes only. Usage of
 The project is licensed under MIT License.
 
 
-#**Author**#
+#**Original Author**#
 *Mazin Ahmed*
 * Website: [https://mazinahmed.net](https://mazinahmed.net)
 * Email: *mazin AT mazinahmed DOT net*
 * Twitter: [https://twitter.com/mazen160](https://twitter.com/mazen160)
 * Linkedin: [http://linkedin.com/in/infosecmazinahmed](http://linkedin.com/in/infosecmazinahmed)
+
+#**Mod author**#
+*Cristian Giustini*
+* Website: [http://www.voidzone.it](http://www.voidzone.it)
+* Email: *void AT voidzone DOT it*
