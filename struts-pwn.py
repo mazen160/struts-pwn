@@ -8,7 +8,7 @@
 # https://www.exploit-db.com/exploits/41570/
 # https://www.seebug.org/vuldb/ssvid-92746
 # Addons:
-# Cristian Giustini <Cristian AT voidzone DOT it>
+# Cristian 'void' Giustini <void AT voidzone DOT it>
 # Added CIDR notations for range scanning and port parameter
 # **********************************************************
 import sys
