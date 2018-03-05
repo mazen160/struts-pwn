@@ -94,7 +94,7 @@ def exploit(url, cmd):
     try:
         output = ""
         with requests.get(url, headers=headers, timeout=timeout, allow_redirects=False, stream=True) as resp:
-            for i in resp.iter_content():
+            for i in resp.iter_content(decode_unicode=True):
                 output += i
     except requests.exceptions.ChunkedEncodingError as e:
         print("EXCEPTION::::--> " + str(e))
