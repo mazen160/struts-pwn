@@ -92,14 +92,16 @@ def exploit(url, cmd):
 
     timeout = 3
     try:
-        output = ""
-        with requests.get(url, headers=headers, verify=False, timeout=timeout, allow_redirects=False, stream=True) as resp:
-            for i in resp.iter_content(decode_unicode=True):
-                output += i
-    except requests.exceptions.ChunkedEncodingError as e:
-        print("EXCEPTION::::--> " + str(e))
-        print("Note: Server Connection Closed Prematurely")
-        print("")
+        output = requests.get(url, headers=headers, verify=False, timeout=timeout, allow_redirects=False).text
+    except requests.exceptions.ChunkedEncodingError:
+        try:
+            output = ""
+            with requests.get(url, headers=headers, verify=False, timeout=timeout, allow_redirects=False, stream=True) as resp:
+                for i in resp.iter_content(decode_unicode=True):
+                    output += i
+        except requests.exceptions.ChunkedEncodingError as e:
+            print("EXCEPTION::::--> " + str(e))
+            print("Note: Server Connection Closed Prematurely")
     except Exception as e:
         print("EXCEPTION::::--> " + str(e))
         output = 'ERROR'
