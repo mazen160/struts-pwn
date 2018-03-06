@@ -101,7 +101,7 @@ def exploit(url, cmd):
                     output += i
         except requests.exceptions.ChunkedEncodingError as e:
             print("EXCEPTION::::--> " + str(e))
-            print("Note: Server Connection Closed Prematurely")
+            print("Note: Server Connection Closed Prematurely\n")
     except Exception as e:
         print("EXCEPTION::::--> " + str(e))
         output = 'ERROR'
