@@ -94,6 +94,7 @@ def exploit(url, cmd):
     try:
         output = requests.get(url, headers=headers, verify=False, timeout=timeout, allow_redirects=False).text
     except requests.exceptions.ChunkedEncodingError:
+        print("[!] ChunkedEncodingError Error: Making another request to the url.")
         try:
             output = ""
             with requests.get(url, headers=headers, verify=False, timeout=timeout, allow_redirects=False, stream=True) as resp:
@@ -102,9 +103,14 @@ def exploit(url, cmd):
         except requests.exceptions.ChunkedEncodingError as e:
             print("EXCEPTION::::--> " + str(e))
             print("Note: Server Connection Closed Prematurely\n")
+        except Exception as e:
+            print("EXCEPTION::::--> " + str(e))
+            output = 'ERROR'
+    
     except Exception as e:
         print("EXCEPTION::::--> " + str(e))
         output = 'ERROR'
+    
     return(output)
 
 
