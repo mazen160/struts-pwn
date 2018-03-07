@@ -93,8 +93,10 @@ def exploit(url, cmd):
     timeout = 3
     try:
         output = requests.get(url, headers=headers, verify=False, timeout=timeout, allow_redirects=False).text
+    
     except requests.exceptions.ChunkedEncodingError:
         print("[!] ChunkedEncodingError Error: Making another request to the url.")
+        print("Refer to: https://github.com/mazen160/struts-pwn/issues/8 for help.")
         try:
             output = ""
             with requests.get(url, headers=headers, verify=False, timeout=timeout, allow_redirects=False, stream=True) as resp:
