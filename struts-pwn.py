@@ -101,7 +101,7 @@ def exploit(url, cmd):
             output = ""
             with requests.get(url, headers=headers, verify=False, timeout=timeout, allow_redirects=False, stream=True) as resp:
                 for i in resp.iter_content(decode_unicode=True):
-                    output += i
+                    output += i.decode('utf-8')
         except requests.exceptions.ChunkedEncodingError as e:
             print("EXCEPTION::::--> " + str(e))
             print("Note: Server Connection Closed Prematurely\n")
